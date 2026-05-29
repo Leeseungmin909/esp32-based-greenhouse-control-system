@@ -193,3 +193,9 @@ body {
     background-color: #0f3b28;
     color: white;
 }
+
+button:disabled,
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

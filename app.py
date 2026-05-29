@@ -159,6 +159,14 @@ def control_device():
             "status": "error",
             "message": "잘못된 장치 이름입니다."
         }), 400
+    
+    current_status = get_device_status()
+
+    if current_status and current_status["mode"] == "auto" and device != "mode":
+        return jsonify({
+            "status": "error",
+            "message": "자동 모드에서는 장치를 수동으로 제어할 수 없습니다."
+        }), 403
 
     conn = get_db_connection()
 
