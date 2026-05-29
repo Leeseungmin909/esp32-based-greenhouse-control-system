@@ -14,10 +14,15 @@ body {
     min-height: 100vh;
 }
 
+/* =====================
+   사이드바
+===================== */
+
 .sidebar {
     width: 190px;
     background-color: #0f3b28;
     color: white;
+    flex-shrink: 0;
 }
 
 .logo {
@@ -51,11 +56,24 @@ body {
     background-color: #55bd8a;
 }
 
+/* =====================
+   메인
+===================== */
+
 .main {
     flex: 1;
     padding: 10px 24px 24px 24px;
     background-color: white;
+    min-width: 0;
 }
+
+.page-section {
+    width: 100%;
+}
+
+/* =====================
+   센서 카드
+===================== */
 
 .cards {
     display: grid;
@@ -107,6 +125,10 @@ body {
     color: #e67817;
 }
 
+/* =====================
+   그래프
+===================== */
+
 .chart-section {
     padding: 0 14px;
     margin-bottom: 28px;
@@ -129,10 +151,18 @@ body {
     margin-right: 120px;
 }
 
+.chart-box {
+    height: 260px;
+}
+
 #sensorChart {
     width: 100%;
-    max-height: 240px;
+    max-height: 260px;
 }
+
+/* =====================
+   제어 영역
+===================== */
 
 .control-section {
     display: flex;
@@ -198,4 +228,216 @@ button:disabled,
 .disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* =====================
+   공통 페이지 헤더
+===================== */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 18px;
+    padding: 8px 6px 0 6px;
+}
+
+.page-header h2 {
+    margin: 0 0 6px 0;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.page-header p {
+    margin: 0;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+#sensorTablePageInfo,
+#logPageInfo {
+    font-size: 14px;
+    color: #374151;
+}
+
+/* =====================
+   센서 데이터 테이블
+===================== */
+
+.table-page {
+    padding: 18px 16px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border: 1px solid #d8e8dc;
+}
+
+.data-table th {
+    background-color: #f1f8f3;
+    color: #111827;
+    font-weight: 700;
+    border: 1px solid #d8e8dc;
+    padding: 12px;
+    text-align: center;
+}
+
+.data-table td {
+    border: 1px solid #d8e8dc;
+    padding: 11px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.data-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.data-table tr:hover {
+    background-color: #eef7f0;
+}
+
+.pagination {
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.pagination button {
+    width: 90px;
+    height: 36px;
+    border: 1px solid #bdbdbd;
+    background-color: #ffffff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #0f3b28;
+    color: #ffffff;
+}
+
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* =====================
+   활동 기록
+===================== */
+
+.log-page {
+    padding: 18px 16px;
+}
+
+.activity-log-list {
+    border-top: 1px solid #d8e8dc;
+    background-color: #ffffff;
+}
+
+.activity-log-item {
+    display: flex;
+    gap: 14px;
+    padding: 16px 14px;
+    border-bottom: 1px solid #d8e8dc;
+    align-items: flex-start;
+}
+
+.activity-log-item:hover {
+    background-color: #f8fbf8;
+}
+
+.log-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.log-icon.on {
+    color: #0f8f4f;
+    background-color: #e7f8ee;
+}
+
+.log-icon.off {
+    color: #777;
+    background-color: #eeeeee;
+}
+
+.log-content {
+    flex: 1;
+}
+
+.log-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.log-desc {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 5px;
+}
+
+.log-time {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.empty-log {
+    padding: 24px;
+    text-align: center;
+    color: #6b7280;
+    border-bottom: 1px solid #d8e8dc;
+}
+
+/* =====================
+   반응형
+===================== */
+
+@media (max-width: 1100px) {
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .control-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 760px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .sidebar nav {
+        flex-direction: row;
+    }
+
+    .sidebar nav a {
+        flex: 1;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .device-controls {
+        flex-direction: column;
+        gap: 14px;
+    }
 }

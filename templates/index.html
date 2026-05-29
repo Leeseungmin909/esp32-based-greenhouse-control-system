@@ -3,26 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>SmartFarm Dashboard</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
-    <div class="layout">
-        <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-icon">🌿</div>
-                <div>SmartFarm</div>
-            </div>
+<div class="layout">
 
-            <nav>
-                <a class="active">대시보드</a>
-                <a>센서 데이터</a>
-            </nav>
-        </aside>
+    <!-- 왼쪽 사이드바 -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">🌿</div>
+            <div>SmartFarm</div>
+        </div>
 
-        <main class="main">
-    
+        <nav>
+            <a href="#" id="dashboardMenu" class="active">대시보드</a>
+            <a href="#" id="sensorDataMenu">센서 데이터</a>
+            <a href="#" id="activityLogMenu">활동 기록</a>
+        </nav>
+    </aside>
+
+    <!-- 메인 영역 -->
+    <main class="main">
+
+        <!-- =========================
+             대시보드 화면
+        ========================== -->
+        <section id="dashboardSection" class="page-section">
+
+            <!-- 센서 카드 -->
             <section class="cards">
                 <div class="sensor-card active" data-type="temperature">
                     <p>온도</p>
@@ -57,42 +69,19 @@
                 </div>
             </section>
 
-            <section id="sensorTableSection" class="sensor-table-section" style="display: none;">
-                <div class="table-header">
-                    <h2>센서 데이터 목록</h2>
-                    <span id="tablePageInfo">1 / 1 페이지</span>
-                </div>
-
-                <table class="sensor-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>측정 시간</th>
-                            <th>온도(℃)</th>
-                            <th>습도(%)</th>
-                            <th>토양 수분</th>
-                            <th>조도(lx)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sensorTableBody">
-                    </tbody>
-                </table>
-
-                <div class="pagination">
-                    <button id="prevPageBtn">이전</button>
-                    <button id="nextPageBtn">다음</button>
-                </div>
-            </section>
-
+            <!-- 그래프 -->
             <section class="chart-section">
                 <div class="chart-header">
                     <h2 id="chartTitle">온도 추이</h2>
                     <span id="chartLegend">● 온도 (℃)</span>
                 </div>
 
-                <canvas id="sensorChart"></canvas>
+                <div class="chart-box">
+                    <canvas id="sensorChart"></canvas>
+                </div>
             </section>
 
+            <!-- 제어 모드 -->
             <section class="control-section">
                 <div class="mode-area">
                     <h2>제어 모드</h2>
@@ -129,10 +118,66 @@
                     </div>
                 </div>
             </section>
+        </section>
 
-        </main>
-    </div>
 
-    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+        <!-- =========================
+             센서 데이터 화면
+        ========================== -->
+        <section id="sensorDataSection" class="page-section table-page" style="display: none;">
+            <div class="page-header">
+                <div>
+                    <h2 id="sensorTableTitle">센서 데이터</h2>
+                    <p id="sensorTableSubtitle">
+                        DB에 저장된 센서 측정값을 50개씩 표시합니다.
+                    </p>
+                </div>
+
+                <span id="sensorTablePageInfo">1 / 1 페이지</span>
+            </div>
+
+            <table class="data-table">
+                <thead id="sensorTableHead">
+                </thead>
+
+                <tbody id="sensorTableBody">
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <button id="sensorPrevPageBtn">이전</button>
+                <button id="sensorNextPageBtn">다음</button>
+            </div>
+        </section>
+
+
+        <!-- =========================
+             활동 기록 화면
+        ========================== -->
+        <section id="activityLogSection" class="page-section log-page" style="display: none;">
+            <div class="page-header">
+                <div>
+                    <h2>활동 기록</h2>
+                    <p>
+                        워터 펌프, 쿨링팬, 생장 LED의 제어 기록을 50개씩 표시합니다.
+                    </p>
+                </div>
+
+                <span id="logPageInfo">1 / 1 페이지</span>
+            </div>
+
+            <div id="activityLogList" class="activity-log-list">
+            </div>
+
+            <div class="pagination">
+                <button id="logPrevPageBtn">이전</button>
+                <button id="logNextPageBtn">다음</button>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>
 </html>

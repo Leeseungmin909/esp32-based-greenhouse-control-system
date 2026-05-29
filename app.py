@@ -340,3 +340,6 @@ def get_device_log_data():
         "total_pages": result["total_pages"],
         "logs": result["logs"]
     })
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=False)
