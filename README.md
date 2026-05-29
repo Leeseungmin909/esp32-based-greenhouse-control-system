@@ -1,4 +1,4 @@
-<img width="1202" height="673" alt="image" src="https://github.com/user-attachments/assets/da66e520-1693-42c8-a416-57b8de9de86d" /># ESP32 기반 스마트팜 제어 시스템
+# ESP32 기반 스마트팜 제어 시스템
 
 ESP32-S3, Flask, MariaDB, AWS EC2를 이용한 스마트팜 모니터링 및 제어 시스템입니다.  
 무순 재배 환경을 기준으로 온도, 습도, 토양 수분, 조도 센서값을 측정하고, 웹 대시보드에서 워터 펌프, 쿨링팬, 생장 LED를 제어할 수 있도록 구성했습니다.
