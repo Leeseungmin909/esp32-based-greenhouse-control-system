@@ -1,4 +1,4 @@
-# ESP32 기반 스마트팜 제어 시스템
+<img width="1202" height="673" alt="image" src="https://github.com/user-attachments/assets/da66e520-1693-42c8-a416-57b8de9de86d" /># ESP32 기반 스마트팜 제어 시스템
 
 ESP32-S3, Flask, MariaDB, AWS EC2를 이용한 스마트팜 모니터링 및 제어 시스템입니다.  
 무순 재배 환경을 기준으로 온도, 습도, 토양 수분, 조도 센서값을 측정하고, 웹 대시보드에서 워터 펌프, 쿨링팬, 생장 LED를 제어할 수 있도록 구성했습니다.
@@ -24,8 +24,7 @@ ESP32-S3, Flask, MariaDB, AWS EC2를 이용한 스마트팜 모니터링 및 제
 - systemd를 이용한 Flask 서버 자동 실행
 
 ## 시스템 아키텍처
-
-<img width="1142" height="643" alt="image" src="https://github.com/user-attachments/assets/923e57f8-10a3-4ab1-b5e1-aeac304f822b" />
+<img width="1206" height="676" alt="image" src="https://github.com/user-attachments/assets/a880a00c-f7b5-4151-b5e2-1d7721e2becc" />
 
 
 ## 사용 기술
@@ -220,16 +219,16 @@ sudo systemctl status smartfarm
 ## 실행 화면
 
 ### 대시보드 화면
+<img width="1909" height="592" alt="image" src="https://github.com/user-attachments/assets/19461153-49b7-49c1-a9fc-8cd6b1194021" />
 
-![alt text](images/<스크린샷 2026-05-29 225331.png>)
 
 ### 센서 데이터 화면
+<img width="1892" height="904" alt="image" src="https://github.com/user-attachments/assets/7c5ef6c3-5748-49e3-a509-f6946d5ab04b" />
 
-![alt text](images/<스크린샷 2026-05-29 225433.png>)
 
 ### 활동 기록 화면
+<img width="1898" height="891" alt="image" src="https://github.com/user-attachments/assets/fa925eee-ffb1-4db8-b693-58bbb1f1ec02" />
 
-![alt text](images/<스크린샷 2026-05-29 225507.png>)
 
 ### 실제 하드웨어 구성 사진
 
