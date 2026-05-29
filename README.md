@@ -26,7 +26,7 @@ ESP32-S3, Flask, MariaDB, AWS EC2를 이용한 스마트팜 모니터링 및 제
 ## 시스템 아키텍처
 
 ```text
-![alt text](images/image.png)
+<img width="1142" height="643" alt="image" src="https://github.com/user-attachments/assets/923e57f8-10a3-4ab1-b5e1-aeac304f822b" />
 ```
 
 ## 사용 기술
