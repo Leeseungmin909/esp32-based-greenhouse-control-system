@@ -354,8 +354,7 @@ function updateChart(type) {
 
 
 // =====================
-// 센서 카드 클릭
-// 카드 클릭 시 해당 센서 테이블로 이동
+// 대시보드 센서 카드 클릭
 // =====================
 document.querySelectorAll(".sensor-card").forEach(card => {
     card.addEventListener("click", () => {
@@ -366,12 +365,25 @@ document.querySelectorAll(".sensor-card").forEach(card => {
         card.classList.add("active");
 
         selectedType = card.dataset.type;
-        selectedSensorTableType = selectedType;
-
         updateChart(selectedType);
+    });
+});
 
+
+// =====================
+// 센서 데이터 페이지 카드 클릭
+// =====================
+document.querySelectorAll(".sensor-table-card").forEach(card => {
+    card.addEventListener("click", () => {
+        document.querySelectorAll(".sensor-table-card").forEach(item => {
+            item.classList.remove("active");
+        });
+
+        card.classList.add("active");
+
+        selectedSensorTableType = card.dataset.type;
         currentSensorTablePage = 1;
-        showPage("sensor");
+
         loadSensorTableData(currentSensorTablePage);
     });
 });
