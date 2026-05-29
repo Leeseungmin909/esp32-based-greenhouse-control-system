@@ -9,19 +9,6 @@ ESP32-S3, Flask, MariaDB, AWS EC2를 이용한 스마트팜 모니터링 및 제
 
 또한 웹 대시보드에서 자동 모드와 수동 모드를 전환할 수 있으며, 수동 모드에서는 워터 펌프, 쿨링팬, 생장 LED를 직접 제어할 수 있습니다.
 
-## 주요 기능
-
-- ESP32-S3 기반 센서 데이터 수집
-- 센서값 10초 평균 계산
-- AWS EC2 Flask 서버로 센서 데이터 전송
-- MariaDB에 센서 데이터 저장
-- 웹 대시보드에서 최신 센서값 표시
-- Chart.js를 이용한 센서 데이터 그래프 표시
-- 센서 데이터 50개 단위 테이블 조회
-- 워터 펌프, 쿨링팬, 생장 LED 활동 기록 조회
-- 자동/수동 모드 전환
-- 웹 대시보드 기반 장치 제어
-- systemd를 이용한 Flask 서버 자동 실행
 
 ## 시스템 아키텍처
 <img width="1206" height="676" alt="image" src="https://github.com/user-attachments/assets/a880a00c-f7b5-4151-b5e2-1d7721e2becc" />
@@ -125,16 +112,6 @@ ESP32-S3, Flask, MariaDB, AWS EC2를 이용한 스마트팜 모니터링 및 제
 4. 평균 센서값을 `/api/sensor`에 POST 요청으로 전송합니다.
 5. 서버에서 받은 모드와 장치 상태에 따라 릴레이를 제어합니다.
 
-## API 목록
-
-| Method | Endpoint | 설명 |
-| --- | --- | --- |
-| GET | `/api/sensor` | 최근 센서 데이터와 최신 센서값 조회 |
-| POST | `/api/sensor` | ESP32에서 측정한 센서 데이터 저장 |
-| GET | `/api/sensor/table?page=1&limit=50` | 센서 데이터 테이블 페이지 조회 |
-| GET | `/api/control` | 현재 제어 모드와 장치 상태 조회 |
-| POST | `/api/control` | 제어 모드 또는 장치 상태 변경 |
-| GET | `/api/device-log?page=1&limit=50` | 장치 활동 기록 조회 |
 
 ### 센서 데이터 전송 예시
 
