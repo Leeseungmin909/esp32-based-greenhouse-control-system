@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartFarm Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">🌿</div>
+                <div>SmartFarm</div>
+            </div>
+
+            <nav>
+                <a class="active">대시보드</a>
+                <a>센서 데이터</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+    
+            <section class="cards">
+                <div class="sensor-card active" data-type="temperature">
+                    <p>온도</p>
+                    <h2 id="temperatureValue">
+                        {{ latest.temperature if latest else '-' }}℃
+                    </h2>
+                    <span class="normal">적정 범위</span>
+                </div>
+
+                <div class="sensor-card" data-type="humidity">
+                    <p>습도</p>
+                    <h2 id="humidityValue">
+                        {{ latest.humidity if latest else '-' }}%
+                    </h2>
+                    <span class="normal">적정 범위</span>
+                </div>
+
+                <div class="sensor-card warning" data-type="soil_moisture">
+                    <p>토양 수분</p>
+                    <h2 id="soilValue">
+                        {{ latest.soil_moisture if latest else '-' }}%
+                    </h2>
+                    <span class="warning-text">△ 부족</span>
+                </div>
+
+                <div class="sensor-card warning" data-type="light">
+                    <p>조도</p>
+                    <h2 id="lightValue">
+                        {{ latest.light if latest else '-' }} lx
+                    </h2>
+                    <span class="warning-text">△ 부족</span>
+                </div>
+            </section>
+
+            <section class="chart-section">
+                <div class="chart-header">
+                    <h2 id="chartTitle">온도 추이</h2>
+                    <span id="chartLegend">● 온도 (℃)</span>
+                </div>
+
+                <canvas id="sensorChart"></canvas>
+            </section>
+
+            <section class="control-section">
+                <div class="mode-area">
+                    <h2>제어 모드</h2>
+
+                    <button id="autoModeBtn" class="mode-btn active">
+                        자동
+                    </button>
+
+                    <button id="manualModeBtn" class="mode-btn">
+                        수동
+                    </button>
+                </div>
+
+                <div class="device-controls">
+                    <div class="control-box">
+                        <p>워터 펌프</p>
+                        <button class="device-btn" data-device="pump">
+                            OFF
+                        </button>
+                    </div>
+
+                    <div class="control-box">
+                        <p>쿨링팬</p>
+                        <button class="device-btn" data-device="fan">
+                            OFF
+                        </button>
+                    </div>
+
+                    <div class="control-box">
+                        <p>생장 LED</p>
+                        <button class="device-btn" data-device="led">
+                            OFF
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
