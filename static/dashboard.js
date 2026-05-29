@@ -17,28 +17,36 @@ const chartInfo = {
         label: "온도 (℃)",
         unit: "℃",
         tableTitle: "온도 데이터",
-        tableHeader: "온도(℃)"
+        tableHeader: "온도(℃)",
+        yMin: 0,
+        yMax: 40
     },
     humidity: {
         title: "습도 추이",
         label: "습도 (%)",
         unit: "%",
         tableTitle: "습도 데이터",
-        tableHeader: "습도(%)"
+        tableHeader: "습도(%)",
+        yMin: 0,
+        yMax: 100
     },
     soil_moisture: {
         title: "토양 수분 추이",
-        label: "토양 수분 (%)",
-        unit: "%",
+        label: "토양 수분",
+        unit: "",
         tableTitle: "토양 수분 데이터",
-        tableHeader: "토양 수분"
+        tableHeader: "토양 수분",
+        yMin: 1000,
+        yMax: 2500
     },
     light: {
         title: "조도 추이",
-        label: "조도 (lx)",
-        unit: "lx",
+        label: "조도",
+        unit: "",
         tableTitle: "조도 데이터",
-        tableHeader: "조도(lx)"
+        tableHeader: "조도",
+        yMin: 0,
+        yMax: 300
     }
 };
 
@@ -349,6 +357,10 @@ function updateChart(type) {
     sensorChart.data.labels = labels;
     sensorChart.data.datasets[0].label = info.label;
     sensorChart.data.datasets[0].data = data;
+
+    sensorChart.options.scales.y.min = info.yMin;
+    sensorChart.options.scales.y.max = info.yMax;
+
     sensorChart.update();
 }
 
