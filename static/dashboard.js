@@ -191,6 +191,43 @@ async function loadSensorData() {
     }
 }
 
+function isSensorWarning(type, value) {
+    const numberValue = Number(value);
+
+    if (type === "temperature") {
+        return numberValue >= 25;
+    }
+
+    if (type === "humidity") {
+        return numberValue >= 80;
+    }
+
+    if (type === "soil_moisture") {
+        return numberValue >= 2000;
+    }
+
+    if (type === "light") {
+        return numberValue < 100;
+    }
+
+    return false;
+}
+
+function updateCardStatus(card, statusTextElement, type, value) {
+    const warning = isSensorWarning(type, value);
+
+    if (warning) {
+        card.classList.add("warning");
+        statusTextElement.classList.remove("normal");
+        statusTextElement.classList.add("warning-text");
+        statusTextElement.innerText = "△ 부족";
+    } else {
+        card.classList.remove("warning");
+        statusTextElement.classList.remove("warning-text");
+        statusTextElement.classList.add("normal");
+        statusTextElement.innerText = "적정 범위";
+    }
+}
 
 // =====================
 // 최신 센서값 표시
@@ -209,8 +246,93 @@ function updateLatestValues(latest) {
 
     document.getElementById("lightValue").innerText =
         `${latest.light} lx`;
+
+    // 대시보드 카드 상태 변경
+    const temperatureCard = document.querySelector('.sensor-card[data-type="temperature"]');
+    const humidityCard = document.querySelector('.sensor-card[data-type="humidity"]');
+    const soilCard = document.querySelector('.sensor-card[data-type="soil_moisture"]');
+    const lightCard = document.querySelector('.sensor-card[data-type="light"]');
+
+    updateCardStatus(
+        temperatureCard,
+        temperatureCard.querySelector("span"),
+        "temperature",
+        latest.temperature
+    );
+
+    updateCardStatus(
+        humidityCard,
+        humidityCard.querySelector("span"),
+        "humidity",
+        latest.humidity
+    );
+
+    updateCardStatus(
+        soilCard,
+        soilCard.querySelector("span"),
+        "soil_moisture",
+        latest.soil_moisture
+    );
+
+    updateCardStatus(
+        lightCard,
+        lightCard.querySelector("span"),
+        "light",
+        latest.light
+    );
+
+    // 센서 데이터 페이지 카드도 같이 변경
+    updateSensorTableCardValuesAndStatus(latest);
 }
 
+function updateSensorTableCardValuesAndStatus(latest) {
+    const tableTemperatureValue = document.getElementById("tableTemperatureValue");
+    const tableHumidityValue = document.getElementById("tableHumidityValue");
+    const tableSoilValue = document.getElementById("tableSoilValue");
+    const tableLightValue = document.getElementById("tableLightValue");
+
+    if (!tableTemperatureValue || !tableHumidityValue || !tableSoilValue || !tableLightValue) {
+        return;
+    }
+
+    tableTemperatureValue.innerText = `${latest.temperature}℃`;
+    tableHumidityValue.innerText = `${latest.humidity}%`;
+    tableSoilValue.innerText = `${latest.soil_moisture}%`;
+    tableLightValue.innerText = `${latest.light} lx`;
+
+    const temperatureCard = document.querySelector('.sensor-table-card[data-type="temperature"]');
+    const humidityCard = document.querySelector('.sensor-table-card[data-type="humidity"]');
+    const soilCard = document.querySelector('.sensor-table-card[data-type="soil_moisture"]');
+    const lightCard = document.querySelector('.sensor-table-card[data-type="light"]');
+
+    updateCardStatus(
+        temperatureCard,
+        temperatureCard.querySelector("span"),
+        "temperature",
+        latest.temperature
+    );
+
+    updateCardStatus(
+        humidityCard,
+        humidityCard.querySelector("span"),
+        "humidity",
+        latest.humidity
+    );
+
+    updateCardStatus(
+        soilCard,
+        soilCard.querySelector("span"),
+        "soil_moisture",
+        latest.soil_moisture
+    );
+
+    updateCardStatus(
+        lightCard,
+        lightCard.querySelector("span"),
+        "light",
+        latest.light
+    );
+}
 
 // =====================
 // 차트 갱신

@@ -495,3 +495,61 @@ button:disabled,
     font-size: 14px;
     color: #6b7280;
 }
+
+/* =====================
+   센서 데이터 페이지 카드
+===================== */
+
+.sensor-data-cards {
+    margin-bottom: 28px;
+}
+
+.sensor-table-card {
+    background-color: white;
+    border: 1px solid #b7d9c2;
+    border-left: 18px solid #1c563c;
+    padding: 16px 18px;
+    cursor: pointer;
+    min-height: 130px;
+    transition: 0.2s;
+}
+
+.sensor-table-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.sensor-table-card.active {
+    outline: 3px solid #55bd8a;
+}
+
+.sensor-table-card.warning {
+    border-left-color: #e67817;
+}
+
+.sensor-table-card p {
+    margin: 0;
+    font-size: 20px;
+    color: #475369;
+}
+
+.sensor-table-card h2 {
+    margin: 16px 0 8px 0;
+    font-size: 34px;
+    letter-spacing: 1px;
+}
+
+.sensor-selected-title {
+    margin: 18px 0 12px 0;
+}
+
+.sensor-selected-title h3 {
+    margin: 0 0 6px 0;
+    font-size: 22px;
+}
+
+.sensor-selected-title p {
+    margin: 0;
+    font-size: 14px;
+    color: #6b7280;
+}
