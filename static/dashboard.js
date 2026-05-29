@@ -18,7 +18,7 @@ const chartInfo = {
         unit: "℃",
         tableTitle: "온도 데이터",
         tableHeader: "온도(℃)",
-        yMin: 0,
+        yMin: 10,
         yMax: 40
     },
     humidity: {
@@ -37,7 +37,7 @@ const chartInfo = {
         tableTitle: "토양 수분 데이터",
         tableHeader: "토양 수분",
         yMin: 1000,
-        yMax: 2500
+        yMax: 2400
     },
     light: {
         title: "조도 추이",
