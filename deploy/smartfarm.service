@@ -1,0 +1,14 @@
+[Unit]
+Description=SmartFarm Flask Server
+After=network.target mariadb.service
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/esp32-based-greenhouse-control-system
+Environment="PATH=/home/ubuntu/esp32-based-greenhouse-control-system/venv/bin"
+ExecStart=/home/ubuntu/esp32-based-greenhouse-control-system/venv/bin/python3 /home/ubuntu/esp32-based-greenhouse-control-system/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
