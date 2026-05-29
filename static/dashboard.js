@@ -242,10 +242,10 @@ function updateLatestValues(latest) {
         `${latest.humidity}%`;
 
     document.getElementById("soilValue").innerText =
-        `${latest.soil_moisture}%`;
+        `${latest.soil_moisture}`;
 
     document.getElementById("lightValue").innerText =
-        `${latest.light} lx`;
+        `${latest.light}`;
 
     // 대시보드 카드 상태 변경
     const temperatureCard = document.querySelector('.sensor-card[data-type="temperature"]');
@@ -297,8 +297,8 @@ function updateSensorTableCardValuesAndStatus(latest) {
 
     tableTemperatureValue.innerText = `${latest.temperature}℃`;
     tableHumidityValue.innerText = `${latest.humidity}%`;
-    tableSoilValue.innerText = `${latest.soil_moisture}%`;
-    tableLightValue.innerText = `${latest.light} lx`;
+    tableSoilValue.innerText = `${latest.soil_moisture}`;
+    tableLightValue.innerText = `${latest.light}`;
 
     const temperatureCard = document.querySelector('.sensor-table-card[data-type="temperature"]');
     const humidityCard = document.querySelector('.sensor-table-card[data-type="humidity"]');
