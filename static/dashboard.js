@@ -150,9 +150,13 @@ dashboardMenu.addEventListener("click", (event) => {
 
 sensorDataMenu.addEventListener("click", (event) => {
     event.preventDefault();
-    selectedSensorTableType = "all";
+
+    selectedSensorTableType = "temperature";
     currentSensorTablePage = 1;
+
     showPage("sensor");
+    updateSensorTableCardActive("temperature");
+    updateSensorTableLatestValues();
     loadSensorTableData(currentSensorTablePage);
 });
 
@@ -272,6 +276,43 @@ async function loadSensorTableData(page) {
     }
 }
 
+function updateSensorTableLatestValues() {
+    if (!sensorLogs || sensorLogs.length === 0) return;
+
+    const latest = sensorLogs[sensorLogs.length - 1];
+
+    document.getElementById("tableTemperatureValue").innerText =
+        `${latest.temperature}℃`;
+
+    document.getElementById("tableHumidityValue").innerText =
+        `${latest.humidity}%`;
+
+    document.getElementById("tableSoilValue").innerText =
+        `${latest.soil_moisture}%`;
+
+    document.getElementById("tableLightValue").innerText =
+        `${latest.light} lx`;
+}
+
+function updateSensorTableCardActive(type) {
+    document.querySelectorAll(".sensor-table-card").forEach(card => {
+        card.classList.remove("active");
+
+        if (card.dataset.type === type) {
+            card.classList.add("active");
+        }
+    });
+}
+
+document.querySelectorAll(".sensor-table-card").forEach(card => {
+    card.addEventListener("click", () => {
+        selectedSensorTableType = card.dataset.type;
+        currentSensorTablePage = 1;
+
+        updateSensorTableCardActive(selectedSensorTableType);
+        loadSensorTableData(currentSensorTablePage);
+    });
+});
 
 // =====================
 // 센서 데이터 테이블 렌더링
@@ -281,41 +322,23 @@ async function loadSensorTableData(page) {
 function renderSensorTable(logs) {
     sensorTableBody.innerHTML = "";
 
-    if (selectedSensorTableType === "all") {
-        sensorTableTitle.innerText = "센서 데이터";
-        sensorTableSubtitle.innerText = "DB에 저장된 전체 센서 측정값을 50개씩 표시합니다.";
+    const info = chartInfo[selectedSensorTableType];
 
-        sensorTableHead.innerHTML = `
-            <tr>
-                <th>ID</th>
-                <th>측정 시간</th>
-                <th>온도(℃)</th>
-                <th>습도(%)</th>
-                <th>토양 수분</th>
-                <th>조도(lx)</th>
-            </tr>
-        `;
-    } else {
-        const info = chartInfo[selectedSensorTableType];
+    sensorTableTitle.innerText = info.tableTitle;
+    sensorTableSubtitle.innerText = `${info.label} 값을 50개씩 표시합니다.`;
 
-        sensorTableTitle.innerText = info.tableTitle;
-        sensorTableSubtitle.innerText = `${info.label} 값을 50개씩 표시합니다.`;
-
-        sensorTableHead.innerHTML = `
-            <tr>
-                <th>ID</th>
-                <th>측정 시간</th>
-                <th>${info.tableHeader}</th>
-            </tr>
-        `;
-    }
+    sensorTableHead.innerHTML = `
+        <tr>
+            <th>ID</th>
+            <th>측정 시간</th>
+            <th>${info.tableHeader}</th>
+        </tr>
+    `;
 
     if (!logs || logs.length === 0) {
-        const colspan = selectedSensorTableType === "all" ? 6 : 3;
-
         sensorTableBody.innerHTML = `
             <tr>
-                <td colspan="${colspan}">저장된 센서 데이터가 없습니다.</td>
+                <td colspan="3">저장된 센서 데이터가 없습니다.</td>
             </tr>
         `;
         return;
@@ -324,25 +347,14 @@ function renderSensorTable(logs) {
     logs.forEach(log => {
         const row = document.createElement("tr");
 
-        if (selectedSensorTableType === "all") {
-            row.innerHTML = `
-                <td>${log.id}</td>
-                <td>${log.created_at}</td>
-                <td>${log.temperature}</td>
-                <td>${log.humidity}</td>
-                <td>${log.soil_moisture}</td>
-                <td>${log.light}</td>
-            `;
-        } else {
-            const value = log[selectedSensorTableType];
-            const unit = chartInfo[selectedSensorTableType].unit;
+        const value = log[selectedSensorTableType];
+        const unit = chartInfo[selectedSensorTableType].unit;
 
-            row.innerHTML = `
-                <td>${log.id}</td>
-                <td>${log.created_at}</td>
-                <td>${value} ${unit}</td>
-            `;
-        }
+        row.innerHTML = `
+            <td>${log.id}</td>
+            <td>${log.created_at}</td>
+            <td>${value} ${unit}</td>
+        `;
 
         sensorTableBody.appendChild(row);
     });

@@ -127,13 +127,42 @@
         <section id="sensorDataSection" class="page-section table-page" style="display: none;">
             <div class="page-header">
                 <div>
-                    <h2 id="sensorTableTitle">센서 데이터</h2>
-                    <p id="sensorTableSubtitle">
-                        DB에 저장된 센서 측정값을 50개씩 표시합니다.
-                    </p>
+                    <h2>센서 데이터</h2>
+                    <p>확인할 센서 항목을 선택하면 해당 데이터가 50개씩 표시됩니다.</p>
                 </div>
 
                 <span id="sensorTablePageInfo">1 / 1 페이지</span>
+            </div>
+
+            <section class="cards sensor-data-cards">
+                <div class="sensor-table-card active" data-type="temperature">
+                    <p>온도</p>
+                    <h2 id="tableTemperatureValue">-℃</h2>
+                    <span class="normal">적정 범위</span>
+                </div>
+
+                <div class="sensor-table-card" data-type="humidity">
+                    <p>습도</p>
+                    <h2 id="tableHumidityValue">-%</h2>
+                    <span class="normal">적정 범위</span>
+                </div>
+
+                <div class="sensor-table-card warning" data-type="soil_moisture">
+                    <p>토양 수분</p>
+                    <h2 id="tableSoilValue">-%</h2>
+                    <span class="warning-text">△ 부족</span>
+                </div>
+
+                <div class="sensor-table-card warning" data-type="light">
+                    <p>조도</p>
+                    <h2 id="tableLightValue">- lx</h2>
+                    <span class="warning-text">△ 부족</span>
+                </div>
+            </section>
+
+            <div class="sensor-selected-title">
+                <h3 id="sensorTableTitle">온도 데이터</h3>
+                <p id="sensorTableSubtitle">온도 값을 50개씩 표시합니다.</p>
             </div>
 
             <table class="data-table">
