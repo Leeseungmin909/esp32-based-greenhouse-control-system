@@ -57,6 +57,33 @@
                 </div>
             </section>
 
+            <section id="sensorTableSection" class="sensor-table-section" style="display: none;">
+                <div class="table-header">
+                    <h2>센서 데이터 목록</h2>
+                    <span id="tablePageInfo">1 / 1 페이지</span>
+                </div>
+
+                <table class="sensor-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>측정 시간</th>
+                            <th>온도(℃)</th>
+                            <th>습도(%)</th>
+                            <th>토양 수분</th>
+                            <th>조도(lx)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sensorTableBody">
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <button id="prevPageBtn">이전</button>
+                    <button id="nextPageBtn">다음</button>
+                </div>
+            </section>
+
             <section class="chart-section">
                 <div class="chart-header">
                     <h2 id="chartTitle">온도 추이</h2>

@@ -225,6 +225,118 @@ def control_device():
         "device_status": get_device_status()
     })
 
+def get_sensor_table_logs(page=1, limit=50):
+    offset = (page - 1) * limit
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    conn = get_db_connection()
+
+    try:
+        with conn.cursor() as cursor:
+            count_sql = """
+                SELECT COUNT(*) AS total
+                FROM sensor_data
+            """
+            cursor.execute(count_sql)
+            total = cursor.fetchone()["total"]
+
+            sql = """
+                SELECT id, temperature, humidity, soil_moisture, light,
+                       DATE_FORMAT(created_at, '%%Y-%%m-%%d %%H:%%i:%%s') AS created_at
+                FROM sensor_data
+                ORDER BY id DESC
+                LIMIT %s OFFSET %s
+            """
+            cursor.execute(sql, (limit, offset))
+            rows = cursor.fetchall()
+
+            return {
+                "total": total,
+                "page": page,
+                "limit": limit,
+                "total_pages": (total + limit - 1) // limit,
+                "logs": rows
+            }
+
+    finally:
+        conn.close()
+
+
+@app.route("/api/sensor/table", methods=["GET"])
+def get_sensor_table_data():
+    page = request.args.get("page", default=1, type=int)
+    limit = request.args.get("limit", default=50, type=int)
+
+    if page < 1:
+        page = 1
+
+    if limit < 1:
+        limit = 50
+
+    result = get_sensor_table_logs(page, limit)
+
+    return jsonify({
+        "status": "success",
+        "total": result["total"],
+        "page": result["page"],
+        "limit": result["limit"],
+        "total_pages": result["total_pages"],
+        "logs": result["logs"]
+    })
+
+def get_device_log_table(page=1, limit=50):
+    offset = (page - 1) * limit
+
+    conn = get_db_connection()
+
+    try:
+        with conn.cursor() as cursor:
+            count_sql = """
+                SELECT COUNT(*) AS total
+                FROM device_log
+            """
+            cursor.execute(count_sql)
+            total = cursor.fetchone()["total"]
+
+            sql = """
+                SELECT id, device_name, action, control_mode,
+                       DATE_FORMAT(created_at, '%%Y-%%m-%%d %%H:%%i:%%s') AS created_at
+                FROM device_log
+                ORDER BY id DESC
+                LIMIT %s OFFSET %s
+            """
+            cursor.execute(sql, (limit, offset))
+            rows = cursor.fetchall()
+
+            return {
+                "total": total,
+                "page": page,
+                "limit": limit,
+                "total_pages": (total + limit - 1) // limit,
+                "logs": rows
+            }
+
+    finally:
+        conn.close()
+
+
+@app.route("/api/device-log", methods=["GET"])
+def get_device_log_data():
+    page = request.args.get("page", default=1, type=int)
+    limit = request.args.get("limit", default=50, type=int)
+
+    if page < 1:
+        page = 1
+
+    if limit < 1:
+        limit = 50
+
+    result = get_device_log_table(page, limit)
+
+    return jsonify({
+        "status": "success",
+        "total": result["total"],
+        "page": result["page"],
+        "limit": result["limit"],
+        "total_pages": result["total_pages"],
+        "logs": result["logs"]
+    })
