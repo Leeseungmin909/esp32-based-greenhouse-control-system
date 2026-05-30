@@ -196,8 +196,7 @@ sudo systemctl status smartfarm
 ## 실행 화면
 
 ### 대시보드 화면
-<img width="1909" height="592" alt="image" src="https://github.com/user-attachments/assets/19461153-49b7-49c1-a9fc-8cd6b1194021" />
-
+<img width="1917" height="909" alt="image" src="https://github.com/user-attachments/assets/f61acd7f-17bf-4e18-a156-527acb6473b3" />
 
 ### 센서 데이터 화면
 <img width="1892" height="904" alt="image" src="https://github.com/user-attachments/assets/7c5ef6c3-5748-49e3-a509-f6946d5ab04b" />
