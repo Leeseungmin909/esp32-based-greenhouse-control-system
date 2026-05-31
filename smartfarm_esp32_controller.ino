@@ -40,8 +40,8 @@ const char* serverBaseUrl = "http://54.180.101.48:5000";
 
 // 토양수분센서 기준: 값이 높을수록 건조, 낮을수록 젖음
 #define SOIL_DRY_THRESHOLD 2000
-#define SOIL_WET_THRESHOLD 1750
 
+// 펜 돌아가는 온도: 25도로 설정
 #define TEMP_FAN_THRESHOLD 25.0
 
 // =====================
@@ -172,8 +172,8 @@ void collectSensorData() {
   float temperature = dht.readTemperature();
   float humidity = dht.readHumidity();
 
-  int soilValue = readAverageAnalog(SOIL_PIN);
-  int lightValue = readAverageAnalog(LIGHT_PIN);
+  int soilValue = readMedianAnalog(SOIL_PIN);
+  int lightValue = readMedianAnalog(LIGHT_PIN);
 
   if (!isnan(temperature) && !isnan(humidity)) {
     tempSum += temperature;
@@ -189,17 +189,29 @@ void collectSensorData() {
 }
 
 // =====================
-// ADC 평균값 읽기
+// ADC 중앙값 읽기
 // =====================
-int readAverageAnalog(int pin) {
-  long sum = 0;
+int readMedianAnalog(int pin) {
+  int values[ADC_SAMPLE_COUNT];
 
   for (int i = 0; i < ADC_SAMPLE_COUNT; i++) {
-    sum += analogRead(pin);
+    values[i] = analogRead(pin);
     delay(ADC_SAMPLE_DELAY);
   }
 
-  return sum / ADC_SAMPLE_COUNT;
+  // 오름차순 정렬
+  for (int i = 0; i < ADC_SAMPLE_COUNT - 1; i++) {
+    for (int j = i + 1; j < ADC_SAMPLE_COUNT; j++) {
+      if (values[i] > values[j]) {
+        int temp = values[i];
+        values[i] = values[j];
+        values[j] = temp;
+      }
+    }
+  }
+
+  // ADC_SAMPLE_COUNT가 10이면 가운데 두 값 평균
+  return (values[ADC_SAMPLE_COUNT / 2 - 1] + values[ADC_SAMPLE_COUNT / 2]) / 2;
 }
 
 // =====================
