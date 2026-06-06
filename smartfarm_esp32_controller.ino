@@ -3,95 +3,78 @@
 #include <ArduinoJson.h>
 #include <DHT.h>
 
-// =====================
-// Wi-Fi 설정
-// =====================
+// Wi-Fi / Server
 const char* ssid = "SK_6E40_2.4G";
 const char* password = "BKE0E@3703";
+const char* serverBaseUrl = "http://52.79.251.198:5000";
 
-// AWS EC2 Flask 서버 주소
-const char* serverBaseUrl = "http://54.180.101.48:5000";
-
-// =====================
-// 센서 핀 설정
-// =====================
+// Sensor Pins
 #define DHT_PIN 4
 #define DHT_TYPE DHT22
-
 #define SOIL_PIN 5
 #define LIGHT_PIN 6
 
-// =====================
-// 릴레이 핀 설정
-// =====================
+// Relay Pins
 #define RELAY_FAN1 16
 #define RELAY_FAN2 17
 #define RELAY_LED  18
 #define RELAY_PUMP 21
 
-// 현재 네 릴레이 동작 기준 유지
 #define RELAY_ON  HIGH
 #define RELAY_OFF LOW
 
-// =====================
-// 자동 제어 기준값
-// =====================
-#define LIGHT_THRESHOLD 100
-
-// 토양수분센서 기준: 값이 높을수록 건조, 낮을수록 젖음
-#define SOIL_DRY_THRESHOLD 2000
-
-// 펜 돌아가는 온도: 25도로 설정
+// Control Thresholds
 #define TEMP_FAN_THRESHOLD 25.0
+#define LIGHT_THRESHOLD 200
+#define SOIL_DRY_THRESHOLD 2100
+#define SOIL_WET_THRESHOLD 1800
 
-// =====================
-// 주기 설정
-// =====================
-#define SENSOR_COLLECT_INTERVAL 1000
-#define CONTROL_CHECK_INTERVAL 1000
+// Timing
+#define SENSOR_COLLECT_INTERVAL 1000UL
+#define CONTROL_CHECK_INTERVAL 1000UL
 #define SENSOR_SEND_SAMPLE_COUNT 10
 
-// ADC 안정화용
 #define ADC_SAMPLE_COUNT 10
 #define ADC_SAMPLE_DELAY 10
 
-// 펌프 제어
-#define PUMP_RUN_TIME 1000UL              // 1초
-#define AUTO_PUMP_COOLDOWN 3600000UL      // 1시간 = 60 * 60 * 1000ms
+// Pump
+#define PUMP_RUN_TIME 1000UL
+#define AUTO_PUMP_COOLDOWN 3600000UL
+#define SENSOR_IGNORE_AFTER_PUMP 5000UL
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
-// =====================
-// 평균 계산용 변수
-// =====================
+// DHT 누적값
 float tempSum = 0;
 float humSum = 0;
-long soilSum = 0;
-long lightSum = 0;
-
 int dhtValidCount = 0;
+
+// 토양/조도 샘플
+int soilSamples[SENSOR_SEND_SAMPLE_COUNT];
+int lightSamples[SENSOR_SEND_SAMPLE_COUNT];
 int sampleCount = 0;
 
-// 최근 평균값 저장
+// 최근 대표값
 float lastAvgTemp = 0;
 float lastAvgHum = 0;
-int lastAvgSoil = 0;
-int lastAvgLight = 0;
+int lastMedianSoil = 0;
+int lastMedianLight = 0;
 
-// 시간 제어용
+// 타이머
 unsigned long lastSensorCollectTime = 0;
 unsigned long lastControlCheckTime = 0;
 
-// 펌프 펄스 제어용
+// 펌프 상태
 bool pumpRunning = false;
 unsigned long pumpStartTime = 0;
-
-// 자동모드 펌프 쿨타임
 unsigned long lastAutoPumpTime = 0;
+unsigned long lastPumpStopTime = 0;
 
-// 서버 pump 명령 중복 실행 방지용
+// 서버 pump 이전 값
 int previousServerPumpValue = 0;
 
+
+// 초기화: 센서, 릴레이, Wi-Fi 설정
 void setup() {
   Serial.begin(115200);
   delay(1000);
@@ -107,12 +90,11 @@ void setup() {
   connectWiFi();
 
   Serial.println("ESP32 SmartFarm Start");
-  Serial.println("Sensor POST: 10sec average");
-  Serial.println("Control GET: 1sec");
-  Serial.println("Pump run: 1sec");
-  Serial.println("Auto pump cooldown: 1hour");
+  Serial.println("Pump run time: 1 sec");
 }
 
+
+// 메인 루프: 제어 상태 확인 + 센서 수집, 10개 모이면 전송
 void loop() {
   unsigned long currentTime = millis();
 
@@ -129,15 +111,14 @@ void loop() {
     collectSensorData();
 
     if (sampleCount >= SENSOR_SEND_SAMPLE_COUNT) {
-      calculateAverageAndSend();
-      resetAverageData();
+      calculateRepresentativeAndSend();
+      resetSensorData();
     }
   }
 }
 
-// =====================
+
 // Wi-Fi 연결
-// =====================
 void connectWiFi() {
   Serial.print("WiFi connecting: ");
   Serial.println(ssid);
@@ -165,9 +146,8 @@ void connectWiFi() {
   Serial.println(WiFi.localIP());
 }
 
-// =====================
-// 1초마다 센서값 수집
-// =====================
+
+// 센서값 수집: 온습도(DHT22) + 토양/조도(ADC 중앙값)
 void collectSensorData() {
   float temperature = dht.readTemperature();
   float humidity = dht.readHumidity();
@@ -183,14 +163,14 @@ void collectSensorData() {
     Serial.println("DHT read failed");
   }
 
-  soilSum += soilValue;
-  lightSum += lightValue;
+  soilSamples[sampleCount] = soilValue;
+  lightSamples[sampleCount] = lightValue;
+
   sampleCount++;
 }
 
-// =====================
-// ADC 중앙값 읽기
-// =====================
+
+// ADC 10회 측정 후 중앙값 반환
 int readMedianAnalog(int pin) {
   int values[ADC_SAMPLE_COUNT];
 
@@ -199,25 +179,46 @@ int readMedianAnalog(int pin) {
     delay(ADC_SAMPLE_DELAY);
   }
 
-  // 오름차순 정렬
-  for (int i = 0; i < ADC_SAMPLE_COUNT - 1; i++) {
-    for (int j = i + 1; j < ADC_SAMPLE_COUNT; j++) {
-      if (values[i] > values[j]) {
-        int temp = values[i];
-        values[i] = values[j];
-        values[j] = temp;
-      }
-    }
-  }
+  sortArray(values, ADC_SAMPLE_COUNT);
 
-  // ADC_SAMPLE_COUNT가 10이면 가운데 두 값 평균
   return (values[ADC_SAMPLE_COUNT / 2 - 1] + values[ADC_SAMPLE_COUNT / 2]) / 2;
 }
 
-// =====================
-// 10초 평균 계산 후 서버 전송
-// =====================
-void calculateAverageAndSend() {
+
+// 배열 중앙값 계산
+int getMedianFromArray(int sourceArray[], int count) {
+  int tempArray[SENSOR_SEND_SAMPLE_COUNT];
+
+  for (int i = 0; i < count; i++) {
+    tempArray[i] = sourceArray[i];
+  }
+
+  sortArray(tempArray, count);
+
+  if (count % 2 == 0) {
+    return (tempArray[count / 2 - 1] + tempArray[count / 2]) / 2;
+  } else {
+    return tempArray[count / 2];
+  }
+}
+
+
+// 오름차순 정렬 
+void sortArray(int array[], int count) {
+  for (int i = 0; i < count - 1; i++) {
+    for (int j = i + 1; j < count; j++) {
+      if (array[i] > array[j]) {
+        int temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+      }
+    }
+  }
+}
+
+
+// 대표값 계산(온습도 평균, 토양/조도 중앙값) 후 서버 전송
+void calculateRepresentativeAndSend() {
   float avgTemp = lastAvgTemp;
   float avgHum = lastAvgHum;
 
@@ -226,29 +227,28 @@ void calculateAverageAndSend() {
     avgHum = humSum / dhtValidCount;
   }
 
-  int avgSoil = soilSum / sampleCount;
-  int avgLight = lightSum / sampleCount;
+  int medianSoil = getMedianFromArray(soilSamples, sampleCount);
+  int medianLight = getMedianFromArray(lightSamples, sampleCount);
 
   lastAvgTemp = avgTemp;
   lastAvgHum = avgHum;
-  lastAvgSoil = avgSoil;
-  lastAvgLight = avgLight;
+  lastMedianSoil = medianSoil;
+  lastMedianLight = medianLight;
 
-  Serial.print("AVG => Temp: ");
+  Serial.print("SEND => Temp: ");
   Serial.print(avgTemp);
   Serial.print(" / Hum: ");
   Serial.print(avgHum);
   Serial.print(" / Soil: ");
-  Serial.print(avgSoil);
+  Serial.print(medianSoil);
   Serial.print(" / Light: ");
-  Serial.println(avgLight);
+  Serial.println(medianLight);
 
-  sendSensorDataToServer(avgTemp, avgHum, avgSoil, avgLight);
+  sendSensorDataToServer(avgTemp, avgHum, medianSoil, medianLight);
 }
 
-// =====================
-// Flask 서버로 센서 평균값 전송
-// =====================
+
+// 센서값을 JSON으로 /api/sensor에 POST
 void sendSensorDataToServer(float temperature, float humidity, int soilValue, int lightValue) {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Sensor POST failed: WiFi disconnected");
@@ -280,9 +280,8 @@ void sendSensorDataToServer(float temperature, float humidity, int soilValue, in
   http.end();
 }
 
-// =====================
-// 1초마다 서버 제어 상태 받아와 적용
-// =====================
+
+// /api/control 조회 후 모드/장치 상태를 릴레이에 반영
 void fetchControlStatusAndApply() {
   if (WiFi.status() != WL_CONNECTED) {
     applyAutoControl();
@@ -333,23 +332,17 @@ void fetchControlStatusAndApply() {
   previousServerPumpValue = pump;
 }
 
-// =====================
-// 수동 모드 제어
-// 팬/LED는 상태 유지
-// 펌프는 ON 명령이 들어오면 1초만 동작
-// =====================
+
+// 수동 모드: fan/led는 그대로 반영, pump는 ON 요청 시 1초만 동작
 void applyManualControl(int pump, int fan, int led) {
   digitalWrite(RELAY_FAN1, fan ? RELAY_ON : RELAY_OFF);
   digitalWrite(RELAY_FAN2, fan ? RELAY_ON : RELAY_OFF);
   digitalWrite(RELAY_LED, led ? RELAY_ON : RELAY_OFF);
 
-  // pump 값이 0 -> 1로 바뀐 순간에만 1초 물 공급
   if (pump == 1 && previousServerPumpValue == 0) {
-    Serial.println("Manual pump command: 1sec ON");
+    Serial.println("Manual pump: 1 sec ON");
 
     startPumpPulse();
-
-    // 서버의 pump 값을 다시 OFF로 돌림
     updateServerDeviceStatus("pump", false);
   }
 
@@ -358,20 +351,16 @@ void applyManualControl(int pump, int fan, int led) {
   }
 }
 
-// =====================
-// 자동 모드 제어
-// 팬/LED는 센서 기준으로 유지
-// 펌프는 건조할 때 1초 동작 후 1시간 쿨타임
-// =====================
+
+// 자동 모드: 최근 센서값 기준으로 팬/LED/펌프 제어
 void applyAutoControl() {
   controlFan(lastAvgTemp);
-  controlLed(lastAvgLight);
-  controlPumpAuto(lastAvgSoil);
+  controlLed(lastMedianLight);
+  controlPumpAuto(lastMedianSoil);
 }
 
-// =====================
-// 팬 자동 제어
-// =====================
+
+// 팬 제어: 기준 온도 이상이면 ON
 void controlFan(float temperature) {
   if (temperature >= TEMP_FAN_THRESHOLD) {
     digitalWrite(RELAY_FAN1, RELAY_ON);
@@ -382,9 +371,8 @@ void controlFan(float temperature) {
   }
 }
 
-// =====================
-// LED 자동 제어
-// =====================
+
+// LED 제어: 기준 조도보다 어두우면 ON
 void controlLed(int lightValue) {
   if (lightValue < LIGHT_THRESHOLD) {
     digitalWrite(RELAY_LED, RELAY_ON);
@@ -393,29 +381,31 @@ void controlLed(int lightValue) {
   }
 }
 
-// =====================
-// 자동모드 펌프 제어
-// =====================
+
+// 펌프 자동 제어: 건조하면 1초 동작 + 1시간 쿨타임
 void controlPumpAuto(int soilValue) {
   unsigned long currentTime = millis();
 
+  if (pumpRunning) {
+    return;
+  }
+
+  if (lastPumpStopTime > 0 && currentTime - lastPumpStopTime < SENSOR_IGNORE_AFTER_PUMP) {
+    return;
+  }
+
   if (soilValue >= SOIL_DRY_THRESHOLD) {
     if (lastAutoPumpTime == 0 || currentTime - lastAutoPumpTime >= AUTO_PUMP_COOLDOWN) {
-      Serial.println("Auto pump: soil dry, 1sec ON");
+      Serial.println("Auto pump: 1 sec ON");
 
       startPumpPulse();
       lastAutoPumpTime = currentTime;
     }
   }
-
-  if (soilValue <= SOIL_WET_THRESHOLD && !pumpRunning) {
-    digitalWrite(RELAY_PUMP, RELAY_OFF);
-  }
 }
 
-// =====================
-// 펌프 1초 동작 시작
-// =====================
+
+// 펌프 켜고 시작 시간 기록
 void startPumpPulse() {
   if (pumpRunning) {
     return;
@@ -428,9 +418,8 @@ void startPumpPulse() {
   Serial.println("Pump ON");
 }
 
-// =====================
-// 펌프 1초 후 자동 OFF
-// =====================
+
+// 펌프 1초 경과 시 자동 OFF
 void updatePumpPulse() {
   if (!pumpRunning) {
     return;
@@ -441,15 +430,14 @@ void updatePumpPulse() {
   if (currentTime - pumpStartTime >= PUMP_RUN_TIME) {
     digitalWrite(RELAY_PUMP, RELAY_OFF);
     pumpRunning = false;
+    lastPumpStopTime = currentTime;
 
     Serial.println("Pump OFF");
   }
 }
 
-// =====================
-// 서버 device_status 값 변경
-// 펌프 1초 동작 후 서버 pump 값을 OFF로 되돌릴 때 사용
-// =====================
+
+// 수동 펌프 동작 후 서버 pump 값을 OFF로 되돌림
 void updateServerDeviceStatus(String device, bool value) {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Control POST failed: WiFi disconnected");
@@ -480,22 +468,22 @@ void updateServerDeviceStatus(String device, bool value) {
   http.end();
 }
 
-// =====================
-// 평균값 변수 초기화
-// =====================
-void resetAverageData() {
+
+// 다음 측정을 위해 누적 변수/배열 초기화
+void resetSensorData() {
   tempSum = 0;
   humSum = 0;
-  soilSum = 0;
-  lightSum = 0;
-
   dhtValidCount = 0;
   sampleCount = 0;
+
+  for (int i = 0; i < SENSOR_SEND_SAMPLE_COUNT; i++) {
+    soilSamples[i] = 0;
+    lightSamples[i] = 0;
+  }
 }
 
-// =====================
-// 모든 릴레이 OFF
-// =====================
+
+// 부팅 시 모든 릴레이 OFF
 void allRelaysOff() {
   digitalWrite(RELAY_FAN1, RELAY_OFF);
   digitalWrite(RELAY_FAN2, RELAY_OFF);
