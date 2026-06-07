@@ -191,25 +191,42 @@ sudo systemctl start smartfarm
 sudo systemctl status smartfarm
 ```
 
-서비스 파일의 `WorkingDirectory`, `Environment`, `ExecStart` 경로는 EC2에 배포한 프로젝트 위치에 맞게 확인해야 합니다.
+서비스 파일의 `WorkingDirectory`, `Environment`, `ExecStart` 경로는 EC2에 배포
+
+한 프로젝트 위치에 맞게 확인해야 합니다.
 
 ## 실행 화면
 
 ### 대시보드 화면
 <img width="1917" height="909" alt="image" src="https://github.com/user-attachments/assets/f61acd7f-17bf-4e18-a156-527acb6473b3" />
 
-### 센서 데이터 화면
+# 센서 데이터 화면
 <img width="1892" height="904" alt="image" src="https://github.com/user-attachments/assets/7c5ef6c3-5748-49e3-a509-f6946d5ab04b" />
 
 
-### 활동 기록 화면
+# 활동 기록 화면
 <img width="1898" height="891" alt="image" src="https://github.com/user-attachments/assets/fa925eee-ffb1-4db8-b693-58bbb1f1ec02" />
 
 
 ### 실제 하드웨어 구성 사진
+<img width="466" height="318" alt="스크린샷 2026-06-08 005026" src="https://github.com/user-attachments/assets/91e94b18-0dbe-4057-bf09-0331d1ac547b" />
 
-<!-- 이미지 추가: 실제 하드웨어 전체 사진 -->
+# ESP32 릴레이 제어 영상
 
-### ESP32 릴레이 제어 영상
+## PAN 제어
 
-<!-- 영상 추가: 웹 대시보드에서 펌프 ON 클릭 시 1초 동작하는 영상 -->
+
+https://github.com/user-attachments/assets/3a270c66-375b-4a71-9963-0c4e6b025702
+
+
+## LED 제어
+
+
+https://github.com/user-attachments/assets/406b9f59-379a-47a0-9948-8ef8f32d939f
+
+
+## PUPM 제어
+
+
+https://github.com/user-attachments/assets/57d121da-5709-413b-9e9e-6b3d36b60dc1
+
