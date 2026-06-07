@@ -25,7 +25,7 @@ const char* serverBaseUrl = "http://52.79.251.198:5000";
 
 // Control Thresholds
 #define TEMP_FAN_THRESHOLD 25.0
-#define LIGHT_THRESHOLD 300
+#define LIGHT_THRESHOLD 100
 #define SOIL_DRY_THRESHOLD 2000
 
 // Timing
