@@ -215,7 +215,7 @@ function isSensorWarning(type, value) {
     }
 
     if (type === "light") {
-        return numberValue < 250;
+        return numberValue < 300;
     }
 
     return false;
