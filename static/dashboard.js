@@ -46,7 +46,7 @@ const chartInfo = {
         tableTitle: "조도 데이터",
         tableHeader: "조도",
         yMin: 0,
-        yMax: 300
+        yMax: 1000
     }
 };
 
@@ -215,7 +215,7 @@ function isSensorWarning(type, value) {
     }
 
     if (type === "light") {
-        return numberValue < 100;
+        return numberValue < 250;
     }
 
     return false;
