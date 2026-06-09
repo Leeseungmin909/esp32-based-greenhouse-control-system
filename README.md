@@ -191,9 +191,7 @@ sudo systemctl start smartfarm
 sudo systemctl status smartfarm
 ```
 
-서비스 파일의 `WorkingDirectory`, `Environment`, `ExecStart` 경로는 EC2에 배포
-
-한 프로젝트 위치에 맞게 확인해야 합니다.
+서비스 파일의 `WorkingDirectory`, `Environment`, `ExecStart` 경로는 EC2에 배포한 프로젝트 위치에 맞게 확인해야 합니다.
 
 ## 실행 화면
 
